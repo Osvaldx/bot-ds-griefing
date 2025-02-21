@@ -1,10 +1,10 @@
 import requests
 
 api_server_java = "https://api.mcstatus.io/v2/status/java/"
+api_server_icon = "https://api.mcstatus.io/v2/icon/"
 
-def obtener_info(direccion: str):
+def consulta_api_server(direccion: str)-> dict | list:
     response = requests.get(api_server_java + direccion)
     data = response.json()
-    print(data["host"])
 
-obtener_info("mc.universocraft.com")
+    return data
