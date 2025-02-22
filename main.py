@@ -34,17 +34,22 @@ async def enviar_avatar(ctx,usuario: str = None):
 @bot.command("info")
 async def info_serverMC(ctx,direccion: str = None):
     if(direccion == None): # Validamos que el usuario haya ingresado una IP o direccion de MC
-        await ctx.send("**[ ! ] Ingrese una IP de MC**")
+        await ctx.send("**[ ! ]** *Ingrese una IP de MC*")
         return
     
     datos = consulta_api_server(direccion) #Consultamos a la API para obtener toda la informacion de la IP
     icono = f"https://api.mcstatus.io/v2/icon/{direccion}" #Obtenemos el ICONO del servidor
 
+    mensaje_uno = f"**IP:** {datos['ip_address']} \n**Puerto:** {datos['port']} **|**"
+    mensaje_dos = f"**Players:** {datos['players']['online']}**/**{datos['players']['max']} \n**Version:** {datos['version']['name_clean']}"
+
     #Creamos el EMBED para enviar por discord con el formato
-    embed=discord.Embed(title="⌈ ɪɴꜰᴏʀᴍᴀᴄɪᴏ́ɴ ᴅᴇʟ ꜱᴇʀᴠɪᴅᴏʀ ⌋", description=f"~@: {datos['host']}")
+    embed=discord.Embed(title="⌈ ɪɴꜰᴏʀᴍᴀᴄɪᴏ́ɴ ᴅᴇʟ ꜱᴇʀᴠɪᴅᴏʀ ⌋", description=f"~𝗰𝗼𝗻𝘀𝘂𝗹𝘁𝗮@: {datos['host']}")
     embed.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
     embed.set_thumbnail(url=icono)
-    embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value=f"IP: {datos['ip_address']}", inline=True)
+    embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+    embed.add_field(name="", value=mensaje_uno, inline=True)
+    embed.add_field(name="", value=mensaje_dos, inline=True)
     embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
     embed.set_footer(text="github.com/Osvaldx")
     await ctx.send(embed=embed)
