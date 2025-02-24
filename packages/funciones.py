@@ -46,3 +46,20 @@ def generar_uuids_jugador(nickname: str)->dict:
         uuids_jugador['PremiumUUID'] = nueva_uuid
     
     return uuids_jugador
+
+def consultar_api_friends(uuid: str)->list:
+    #Consultamos la api y transformamos los datos a JSON
+    api_friends = f"https://api.namemc.com/profile/{uuid}/friends"
+    response = requests.get(api_friends)
+    datos = response.json()
+
+    lista_friends = []
+    #Si la lista esta vacia no tiene sentido agregar nombres
+    if(datos != []):
+        for linea in datos:
+            lista_friends.append(linea['name'])
+
+    return lista_friends
+
+def esPremium(nickname: str)->bool:
+    return True if requests.get(api_minecraft_profile + nickname).json().get('id') else False
