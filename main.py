@@ -61,7 +61,28 @@ async def info_serverMC(ctx,direccion: str = None):
     await ctx.send(embed=embed)
 
 @bot.command("nick")
-async def info_nickMC():
-    pass
+async def info_nickMC(ctx, nickname: str = None):
+    if(nickname == None): # Validamos que el usuario haya ingresado una IP o direccion de MC
+        await ctx.send("**[ ! ]** *Ingrese el NICK de un jugador*")
+        return
+
+    datos_jugador = generar_uuids_jugador(nickname)
+    mensaje_embed = f"**UUID ⌈ ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador['OfflineUUID']}```"
+    skin = f"https://mc-heads.net/body/{nickname}"
+    cabeza = f"https://mc-heads.net/avatar/{nickname}"
+
+    #Si es PREMIUM le agregamos la UUID primero
+    if(len(datos_jugador) > 1):
+        mensaje_embed = f"**UUID ⌈ ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador['PremiumUUID']}```\n" + mensaje_embed
+    
+    embed=discord.Embed(title="⌈ ɪɴꜰᴏʀᴍᴀᴄɪᴏ́ɴ ᴅᴇʟ ᴊᴜɢᴀᴅᴏʀ ⌋", description=f"~𝗷𝘂𝗴𝗮𝗱𝗼𝗿@: {nickname}",color=0xAAAAAA)
+    embed.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
+    embed.set_thumbnail(url=cabeza)
+    embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+    embed.add_field(name="",value=mensaje_embed, inline=True)
+    embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+    embed.set_image(url=skin)
+    embed.set_footer(text="github.com/Osvaldx")
+    await ctx.send(embed=embed)
 
 bot.run(TOKEN_BOT)
