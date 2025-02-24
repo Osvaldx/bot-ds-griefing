@@ -45,7 +45,7 @@ async def info_serverMC(ctx,direccion: str = None):
     mensaje_uno = f"<:punto:1343667939957800960> **IP:** {datos_sv_mc['ip_address']} \n<:punto:1343667939957800960> **Puerto:** {datos_sv_mc['port']}"
     mensaje_dos = f"<:punto:1343667939957800960> **Players:** {datos_sv_mc['players']['online']}**/**{datos_sv_mc['players']['max']} \n<:punto:1343667939957800960> **Version:** {datos_sv_mc['version']['name_clean']}"
     mensaje_tres = f"<:punto:1343667939957800960> **ASN:** AS{datos_ip_sv['network']['autonomous_system']['asn']} \n<:punto:1343667939957800960> **Organización:** {datos_ip_sv['network']['autonomous_system']['organization']}"
-    mensaje_cuatro = f"<:punto:1343667939957800960> **Estado:** {'Encendido [<:online:1343663213862064128>]' if {datos_sv_mc['online']} else 'Apagado [<:offline:1343663227380301895>]'}\n <:punto:1343667939957800960> **Protocolo:** {datos_sv_mc['version']['protocol']}"
+    mensaje_cuatro = f"<:punto:1343667939957800960> **Estado:** {'[<:online:1343663213862064128>] ᴏɴ' if {datos_sv_mc['online']} else '[<:offline:1343663227380301895>] ᴏꜰꜰ'}\n <:punto:1343667939957800960> **Protocolo:** {datos_sv_mc['version']['protocol']}"
     mensaje_motd = f"<:flecha:1343663258388922440> **MOTD** <:lista:1343663272423067710> :\n```{datos_sv_mc['motd']['clean']}```"
 
     #Creamos el EMBED para enviar por discord con el formato
@@ -86,5 +86,33 @@ async def info_nickMC(ctx, nickname: str = None):
     embed.set_image(url=skin)
     embed.set_footer(text="github.com/Osvaldx")
     await ctx.send(embed=embed)
+    # if(jugador_premium):
+    
+@bot.command("friends")
+async def info_friends(ctx, nickname: str = None):
+    if(nickname == None): # Validamos que el usuario haya ingresado una IP o direccion de MC
+        await ctx.send("**[ ! ]** *Ingrese el NICK de un jugador*")
+        return
+    
+    if(esPremium(nickname)):
+        datos_jugador = generar_uuids_jugador(nickname)
+        lista_friends = consultar_api_friends(datos_jugador["PremiumUUID"])
+        if(lista_friends != []):
+            for jugador in lista_friends:
+                cabeza_amigo = f"https://mc-heads.net/avatar/{jugador}"
+                mensaje_embed_friend = f"<:flecha:1343663258388922440> **NICK:** {jugador}\n<:flecha:1343663258388922440> **UUID ⌈ <:tilde:1343663175308152843> ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador['PremiumUUID']}```"
+
+                embed_friend=discord.Embed(title="⌈ ʟɪꜱᴛᴀ ᴅᴇ ᴀᴍɪɢᴏꜱ ⌋", description=f"<:flecha:1343663258388922440> 𝗮𝗺𝗶𝗴𝗼 𝗱𝗲 @: {nickname} <:candado:1343663244770021376>",color=0xAAAAAA)
+                embed_friend.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
+                embed_friend.set_thumbnail(url=cabeza_amigo)
+                embed_friend.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+                embed_friend.add_field(name="",value=mensaje_embed_friend, inline=False)
+                embed_friend.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+                embed_friend.set_footer(text="github.com/Osvaldx")
+                await ctx.send(embed=embed_friend)
+        else:
+            await ctx.send(f"**[ ! ]** *el jugador: {nickname} no tiene una lista de amigos*")
+    else:
+        await ctx.send("**[ ! ]** *el Jugador ingresado es* ⌈ <:X_:1343663199198773298> ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋")
 
 bot.run(TOKEN_BOT)
