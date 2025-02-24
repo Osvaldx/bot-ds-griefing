@@ -34,19 +34,13 @@ def generar_uuids_jugador(nickname: str)->dict:
     datos = response.json() #Transformamos a JSON
     #Validamos que sea premium o no
     if(datos.get('id')):
-        uuid_premium = datos['id']
         nueva_uuid = ""
-        indice_default = 8
-        num_espacios = 0
-        cant_barras = 4
+        ubicaciones = [8,12,16,20]
 
-        for i,char in enumerate(uuid_premium):
-            if(i == (indice_default + num_espacios) and (cant_barras > 0)):
-                nueva_uuid += "-"
-                cant_barras -= 1
-                indice_default = i
-                num_espacios = 4
-            #Agregamos los caracteres
+        for i,char in enumerate(datos['id']):
+            for num in ubicaciones:
+                if(i == num):
+                    nueva_uuid += "-"
             nueva_uuid += char
         
         uuids_jugador['PremiumUUID'] = nueva_uuid
