@@ -36,24 +36,18 @@ def generar_uuids_jugador(nickname: str)->dict:
     if(datos.get('id')):
         uuid_premium = datos['id']
         nueva_uuid = ""
-        contador = 4
-        activar_contador = False
-        vueltas = 0
+        indice_default = 8
+        num_espacios = 0
+        cant_barras = 4
 
-        #Con este for le damos formato de xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-        for i in range(len(uuid_premium)):
-            if(i == 8):
+        for i,char in enumerate(uuid_premium):
+            if(i == (indice_default + num_espacios) and (cant_barras > 0)):
                 nueva_uuid += "-"
-                activar_contador = True
-            
-            if((contador == 0) and (vueltas < 3)):
-                nueva_uuid += "-"
-                contador = 4
-                vueltas += 1
-
-            nueva_uuid += uuid_premium[i]
-            if(activar_contador):
-                contador -= 1
+                cant_barras -= 1
+                indice_default = i
+                num_espacios = 4
+            #Agregamos los caracteres
+            nueva_uuid += char
         
         uuids_jugador['PremiumUUID'] = nueva_uuid
     
