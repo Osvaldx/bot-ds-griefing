@@ -31,7 +31,7 @@ async def enviar_avatar(ctx,usuario: str = None):
 
     await canal.send(usuario.avatar.url) # se envia la foto del usuario
 
-@bot.command("info")
+@bot.command("server")
 async def info_serverMC(ctx,direccion: str = None):
     if(direccion == None): # Validamos que el usuario haya ingresado una IP o direccion de MC
         await ctx.send("**[ ! ]** *Ingrese una IP de MC*")
@@ -59,5 +59,9 @@ async def info_serverMC(ctx,direccion: str = None):
     embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
     embed.set_footer(text="github.com/Osvaldx")
     await ctx.send(embed=embed)
+
+@bot.command("nick")
+async def info_nickMC():
+    pass
 
 bot.run(TOKEN_BOT)
