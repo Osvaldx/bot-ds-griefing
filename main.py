@@ -102,7 +102,7 @@ async def info_friends(ctx, nickname: str = None):
         if(lista_friends != []):
             for jugador in lista_friends:
                 cabeza_amigo = f"https://mc-heads.net/avatar/{jugador}"
-                mensaje_embed_friend = f"<:flecha:1343663258388922440> **NICK:** {jugador}\n<:flecha:1343663258388922440> **UUID ⌈ <:tilde:1343663175308152843> ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador['PremiumUUID']}```"
+                mensaje_embed_friend = f"<:flecha:1343663258388922440> **NICK:** {jugador if(jugador.count('_') < 1) else f'```{jugador}```'}\n<:flecha:1343663258388922440> **UUID ⌈ <:tilde:1343663175308152843> ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador['PremiumUUID']}```"
 
                 embed_friend=discord.Embed(title="⌈ ʟɪꜱᴛᴀ ᴅᴇ ᴀᴍɪɢᴏꜱ ⌋", description=f"<:flecha:1343663258388922440> 𝗮𝗺𝗶𝗴𝗼 𝗱𝗲 @: {nickname} <:candado:1343663244770021376>",color=0xAAAAAA)
                 embed_friend.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
