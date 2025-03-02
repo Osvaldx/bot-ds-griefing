@@ -37,19 +37,20 @@ async def info_serverMC(ctx,direccion: str = None):
         await ctx.send("**[ ! ]** *Ingrese una IP de MC*")
         return
     
+    obtener_motd_server(direccion)
     datos_sv_mc = consulta_api_server(direccion) #Consultamos a la API para obtener toda la informacion de la IP
-    datos_ip_sv = consultar_info_ip(datos_sv_mc['ip_address'])
+    datos_ip_sv = consultar_info_ip(datos_sv_mc['ip'])
     icono = f"https://api.mcstatus.io/v2/icon/{direccion}" #Obtenemos el ICONO del servidor
 
     #Mensajes que van en el embed
-    mensaje_uno = f"<:punto:1343667939957800960> **IP:** {datos_sv_mc['ip_address']} \n<:punto:1343667939957800960> **Puerto:** {datos_sv_mc['port']}"
-    mensaje_dos = f"<:punto:1343667939957800960> **Players:** {datos_sv_mc['players']['online']}**/**{datos_sv_mc['players']['max']} \n<:punto:1343667939957800960> **Version:** {datos_sv_mc['version']['name_clean']}"
+    mensaje_uno = f"<:punto:1343667939957800960> **IP:** {datos_sv_mc['ip']} \n<:punto:1343667939957800960> **Puerto:** {datos_sv_mc['port']}"
+    mensaje_dos = f"<:punto:1343667939957800960> **Players:** {datos_sv_mc['players']['online']}**/**{datos_sv_mc['players']['max']} \n<:punto:1343667939957800960> **Protocolo:** {datos_sv_mc['protocol']['version']}"
     mensaje_tres = f"<:punto:1343667939957800960> **ASN:** AS{datos_ip_sv['network']['autonomous_system']['asn']} \n<:punto:1343667939957800960> **Organización:** {datos_ip_sv['network']['autonomous_system']['organization']}"
-    mensaje_cuatro = f"<:punto:1343667939957800960> **Estado:** {'[<:online:1343663213862064128>] ᴏɴ' if {datos_sv_mc['online']} else '[<:offline:1343663227380301895>] ᴏꜰꜰ'}\n <:punto:1343667939957800960> **Protocolo:** {datos_sv_mc['version']['protocol']}"
-    mensaje_motd = f"<:flecha:1343663258388922440> **MOTD** <:lista:1343663272423067710> :\n```{datos_sv_mc['motd']['clean']}```"
+    mensaje_cuatro = f"<:punto:1343667939957800960> **Estado:** {'[<:online:1343663213862064128>] ᴏɴ' if {datos_sv_mc['online']} else '[<:offline:1343663227380301895>] ᴏꜰꜰ'}\n <:punto:1343667939957800960> **Version:** {datos_sv_mc['version']}"
 
+    image_file = discord.File(f"server.png", filename=f"server.png")
     #Creamos el EMBED para enviar por discord con el formato
-    embed=discord.Embed(title="⌈ ɪɴꜰᴏʀᴍᴀᴄɪᴏ́ɴ ᴅᴇʟ ꜱᴇʀᴠɪᴅᴏʀ ⌋", description=f"<:flecha:1343663258388922440> 𝗰𝗼𝗻𝘀𝘂𝗹𝘁𝗮@: {datos_sv_mc['host']}")
+    embed=discord.Embed(title="⌈ ɪɴꜰᴏʀᴍᴀᴄɪᴏ́ɴ ᴅᴇʟ ꜱᴇʀᴠɪᴅᴏʀ ⌋", description=f"<:flecha:1343663258388922440> 𝗰𝗼𝗻𝘀𝘂𝗹𝘁𝗮@: {datos_sv_mc['hostname'] if datos_sv_mc.get('hostname') else direccion}")
     embed.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
     embed.set_thumbnail(url=icono)
     embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
@@ -57,10 +58,11 @@ async def info_serverMC(ctx,direccion: str = None):
     embed.add_field(name="", value=mensaje_dos, inline=True)
     embed.add_field(name="", value=mensaje_tres, inline=False)
     embed.add_field(name="", value=mensaje_cuatro, inline=True)
-    embed.add_field(name="", value=mensaje_motd, inline=False)
+    # embed.add_field(name="", value=mensaje_motd, inline=False)
+    embed.set_image(url=f"attachment://server.png")
     embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
     embed.set_footer(text="github.com/Osvaldx")
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, file=image_file)
 
 @bot.command("nick")
 async def info_nickMC(ctx, nickname: str = None):
