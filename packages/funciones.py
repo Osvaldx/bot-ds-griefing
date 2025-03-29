@@ -106,3 +106,32 @@ def obtener_motd_server(ip_servidor: str)->None:
 
     hti = Html2Image(browser_executable="C:\\Users\\osvql\\AppData\\Local\\Programs\\Opera GX\\opera.exe",size=(1920,1080))
     hti.screenshot(html_str=codigo_html, save_as=f"server.png",size=(470,78))
+
+def validar_numeros(numero: str)->bool:
+    validado = False
+
+    if(numero.isnumeric()):
+        n = int(numero)
+        if(n >= 0 and n <= 255):
+            validado = True
+
+    return validado
+
+def validar_consulta_ips(ip_ingresada: str)->bool:
+    if(ip_ingresada.count(".") == 3): # verificamos que sea una IPv4
+        partes = ip_ingresada.split(":") # separamos el puerto si existe
+        ip = partes[0].split(".") # separamos los numeros
+        # Validamos que los numeros de las IP esten en el rango
+        for num in ip:
+            if(not validar_numeros(num)):
+                return False # en caso de no estar en el rango o no ser un numero false
+        # Validamos que el puerto sea numerico
+        valido = False if(len(partes) == 2 and not partes[1].isnumeric()) else True
+        
+        return valido
+    
+    if(ip_ingresada.count(".")):
+        if(all(char.isalnum() or char in ".-" for char in ip_ingresada)):
+            return True
+            
+    return False
