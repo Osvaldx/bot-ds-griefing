@@ -142,6 +142,6 @@ def validar_consulta_ips(ip_ingresada: str)->bool:
 def validar_nicks(nickname:str)->bool:
     validado = False
     if(len(nickname) <= 16):
-        validado = True if(char.isalnum() or char in "_" for char in nickname) else False
+        validado = True if(all(char.isalnum() or char in "_" for char in nickname)) else False
     
     return validado
