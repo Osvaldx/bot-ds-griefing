@@ -22,6 +22,7 @@ Este comando te permite consultar información detallada sobre un servidor de Mi
 **Ejemplo n°1**: `$server 199.127.60.166:25666`
 
 ![image](https://github.com/user-attachments/assets/dd6b4138-cf09-46f6-bff4-b076e2273404)
+
 ![image](https://github.com/user-attachments/assets/bba0c78b-71f3-4f1f-8326-7eb6fdc4fa47)
 
 **Ejemplo n°2**: `$server mc.universocraft.com`
@@ -57,6 +58,7 @@ Este comando te permite ver la lista de amigos de un usuario de Minecraft. Con e
 Este comando facilita el acceso a la red de jugadores conectados, ayudando a descubrir amigos o jugadores cercanos a un usuario específico.
 
 **Ejemplo**: `$friends ipforwarding`
+
 ![image](https://github.com/user-attachments/assets/02e60d5e-ebcf-4419-8bfe-d95a79b7fc4e)
 
 ---
