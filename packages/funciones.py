@@ -72,7 +72,7 @@ def obtener_motd_server(ip_servidor: str)->None:
     response = requests.get(api_server_datos + ip_servidor)
     datos = response.json()
     try:
-        motd = datos['motd']['html']
+        motd = datos.get('motd').get('html') if(datos.get('motd').get('html')) else ["A Minecraft Server"]
         mensaje = ""
         if(len(motd) > 1):
             mensaje = f"{motd[0]}<br>{motd[1]}"
@@ -81,7 +81,7 @@ def obtener_motd_server(ip_servidor: str)->None:
             if(motd[0] == "A Minecraft Server"):
                 mensaje = f'<span style="color: #b8b8b8">{mensaje}</span>'
     except:
-        mensaje = '<span style="color: #FF0000">HA OCURRIDO UN ERROR</span>'
+        mensaje = '<span style="color: #FF0000">A Minecraft Server</span>'
         print("no paso")
 
     codigo_html = f"""<div style="
