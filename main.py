@@ -32,7 +32,7 @@ async def enviar_avatar(ctx,usuario: str = None):
     await canal.send(usuario.avatar.url) # se envia la foto del usuario
 
 @bot.command(name="server")
-async def info_serverMC(ctx,direccion: str = None):
+async def info_serverMC(ctx,*,direccion: str = None):
     if(not validar_consulta_ips(direccion) or direccion == None):# Validamos que el usuario haya ingresado una IP o direccion de MC
         await ctx.send("**[ ! ]** *Ingrese una IP de MC valida")
         return
@@ -63,6 +63,29 @@ async def info_serverMC(ctx,direccion: str = None):
     embed.set_footer(text="github.com/Osvaldx")
     await ctx.send(embed=embed,file=image_file)
 
+    if(datos_sv_mc.get('players').get('list')):
+        await ctx.send("<a:cargando:1355769309783396402> - *Cargando lista de usuarios conectados...*")
+        lista_jugadores = datos_sv_mc.get('players').get('list')
+        embed2=discord.Embed(title="⌈ ᴊᴜɢᴀᴅᴏʀᴇꜱ ᴄᴏɴᴇᴄᴛᴀᴅᴏꜱ ⌋", description=f"⌈<:alerta:1355761242542837881>⌋ *Las UUIDS se representan en el online-mode del servidor \n los usuarios pueden ser PREMIUM* ⌈<:alerta:1355761242542837881>⌋ \n• *Los jugadores PREMIUM tendran un <:tilde:1343663175308152843> al lado del nombre*")
+        embed2.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
+        embed2.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+        for persona in lista_jugadores:
+            datos_jugador = generar_uuids_jugador(persona.get('name'))
+            jugador = f'```{persona.get("name")}```' if(persona.get('name').startswith('_') or persona.get('name').endswith('_')) else persona.get('name')
+            tilde = f"<:tilde:1343663175308152843>\n" if(esPremium(jugador)) else f"\n"
+            mensaje_embed_jugador = f'<:flecha:1343663258388922440> **NICK:** {jugador} {tilde} \n'
+            if(persona.get('uuid') == datos_jugador.get('PremiumUUID')):
+                mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:tilde:1343663175308152843> ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador.get('PremiumUUID')}```"
+            elif(persona.get('uuid') == datos_jugador.get('OfflineUUID')):
+                mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:cruz:1343663199198773298> ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador.get('OfflineUUID')}```"
+            elif(persona.get('name').startswith('.') or persona.get('name').startswith('BD_') or persona.get('name').endswith('_BD')):
+                mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:bedrock:1355771886730088558> ʙᴇᴅʀᴏᴄᴋ ⌋:** ```{persona.get('uuid')}```"
+            else:
+                mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:custom:1355767708016181479> ᴄᴜꜱᴛᴏᴍ ⌋:** ```{persona.get('uuid')}```"
+            embed2.add_field(name="",value=(mensaje_embed_jugador + mensaje_embed2), inline=False)
+            embed2.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+        await ctx.send(embed=embed2)
+
 @bot.command(name="nick")
 async def info_nickMC(ctx, *,nickname: str = None):
     nickname = nickname.replace('"',"").replace("'","")
@@ -71,7 +94,7 @@ async def info_nickMC(ctx, *,nickname: str = None):
         return
 
     datos_jugador = generar_uuids_jugador(nickname)
-    mensaje_embed = f"<:flecha:1343663258388922440> **UUID ⌈ <:X_:1343663199198773298> ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋:**```{datos_jugador['OfflineUUID']}```"
+    mensaje_embed = f"<:flecha:1343663258388922440> **UUID ⌈ <:cruz:1343663199198773298> ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋:**```{datos_jugador['OfflineUUID']}```"
     skin = f"https://mc-heads.net/body/{nickname}"
     cabeza = f"https://mc-heads.net/avatar/{nickname}"
 
@@ -103,7 +126,7 @@ async def info_friends(ctx, *,nickname: str = None):
         if(lista_friends != []):
             for jugador in lista_friends:
                 cabeza_amigo = f"https://mc-heads.net/avatar/{jugador}"
-                mensaje_embed_friend = f"<:flecha:1343663258388922440> **NICK:** {jugador if(jugador.count('_') < 1) else f'```{jugador}```'}\n<:flecha:1343663258388922440> **UUID ⌈ <:tilde:1343663175308152843> ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador['PremiumUUID']}```"
+                mensaje_embed_friend = f"<:flecha:1343663258388922440> **NICK:** {f'```{jugador}```' if(jugador.startswith('_') or jugador.endswith('_')) else jugador}\n<:flecha:1343663258388922440> **UUID ⌈ <:tilde:1343663175308152843> ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador['PremiumUUID']}```"
 
                 embed_friend=discord.Embed(title="⌈ ʟɪꜱᴛᴀ ᴅᴇ ᴀᴍɪɢᴏꜱ ⌋", description=f"<:flecha:1343663258388922440> 𝗮𝗺𝗶𝗴𝗼 𝗱𝗲 @: {nickname} <:candado:1343663244770021376>",color=0xAAAAAA)
                 embed_friend.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
@@ -116,6 +139,6 @@ async def info_friends(ctx, *,nickname: str = None):
         else:
             await ctx.send(f"**[ ! ]** *el jugador: {nickname} no tiene una lista de amigos*")
     else:
-        await ctx.send("**[ ! ]** *el Jugador ingresado es* ⌈ <:X_:1343663199198773298> ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋")
+        await ctx.send("**[ ! ]** *el Jugador ingresado es* ⌈ <:cruz:1343663199198773298> ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋")
 
 bot.run(TOKEN_BOT)
