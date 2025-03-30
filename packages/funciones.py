@@ -66,6 +66,9 @@ def esPremium(nickname: str)->bool:
     return True if requests.get(api_minecraft_profile + nickname).json().get('id') else False
 
 def obtener_motd_server(ip_servidor: str)->None:
+    ruta_chrome = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+    ruta_guardar_server = "C:\\Users\\osvql\\Desktop\\dev\\python\\bot-discord-griefing\\images"
+
     response = requests.get(api_server_datos + ip_servidor)
     datos = response.json()
     try:
@@ -104,7 +107,7 @@ def obtener_motd_server(ip_servidor: str)->None:
     tab-size: 4;
     -webkit-tap-highlight-color: transparent;">{mensaje}</div>"""
 
-    hti = Html2Image(browser_executable="C:\\Users\\osvql\\AppData\\Local\\Programs\\Opera GX\\opera.exe",size=(1920,1080))
+    hti = Html2Image(browser_executable=ruta_chrome,size=(1920,1080),output_path=ruta_guardar_server)
     hti.screenshot(html_str=codigo_html, save_as=f"server.png",size=(470,78))
 
 def validar_numeros(numero: str)->bool:

@@ -33,8 +33,8 @@ async def enviar_avatar(ctx,usuario: str = None):
 
 @bot.command("server")
 async def info_serverMC(ctx,direccion: str = None):
-    if(direccion == None): # Validamos que el usuario haya ingresado una IP o direccion de MC
-        await ctx.send("**[ ! ]** *Ingrese una IP de MC*")
+    if(not validar_consulta_ips(direccion) or direccion == None):# Validamos que el usuario haya ingresado una IP o direccion de MC
+        await ctx.send("**[ ! ]** *Ingrese una IP de MC valida")
         return
     
     obtener_motd_server(direccion)
@@ -48,7 +48,7 @@ async def info_serverMC(ctx,direccion: str = None):
     mensaje_tres = f"<:punto:1343667939957800960> **ASN:** AS{datos_ip_sv['network']['autonomous_system']['asn']} \n<:punto:1343667939957800960> **Organización:** {datos_ip_sv['network']['autonomous_system']['organization']}"
     mensaje_cuatro = f"<:punto:1343667939957800960> **Estado:** {'[<:online:1343663213862064128>] ᴏɴ' if {datos_sv_mc['online']} else '[<:offline:1343663227380301895>] ᴏꜰꜰ'}\n <:punto:1343667939957800960> **Version:** {datos_sv_mc['version']}"
 
-    image_file = discord.File(f"server.png", filename=f"server.png")
+    image_file = discord.File(f"images/server.png", filename=f"server.png")
     #Creamos el EMBED para enviar por discord con el formato
     embed=discord.Embed(title="⌈ ɪɴꜰᴏʀᴍᴀᴄɪᴏ́ɴ ᴅᴇʟ ꜱᴇʀᴠɪᴅᴏʀ ⌋", description=f"<:flecha:1343663258388922440> 𝗰𝗼𝗻𝘀𝘂𝗹𝘁𝗮@: {datos_sv_mc['hostname'] if datos_sv_mc.get('hostname') else direccion}")
     embed.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
@@ -58,11 +58,10 @@ async def info_serverMC(ctx,direccion: str = None):
     embed.add_field(name="", value=mensaje_dos, inline=True)
     embed.add_field(name="", value=mensaje_tres, inline=False)
     embed.add_field(name="", value=mensaje_cuatro, inline=True)
-    # embed.add_field(name="", value=mensaje_motd, inline=False)
     embed.set_image(url=f"attachment://server.png")
     embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
     embed.set_footer(text="github.com/Osvaldx")
-    await ctx.send(embed=embed, file=image_file)
+    await ctx.send(embed=embed,file=image_file)
 
 @bot.command("nick")
 async def info_nickMC(ctx, nickname: str = None):
