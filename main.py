@@ -111,8 +111,7 @@ async def info_nickMC(ctx, *,nickname: str = None):
     embed.set_image(url=skin)
     embed.set_footer(text="github.com/Osvaldx")
     await ctx.send(embed=embed)
-    # if(jugador_premium):
-    
+
 @bot.command(name="friends")
 async def info_friends(ctx, *,nickname: str = None):
     nickname = nickname.replace('"',"").replace("'","")
