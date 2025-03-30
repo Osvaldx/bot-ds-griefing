@@ -33,27 +33,67 @@ async def enviar_avatar(ctx,usuario: str = None):
 
 @bot.command(name="server")
 async def info_serverMC(ctx,*,direccion: str = None):
+    estado_server = False
+    jugadores_conectados = False
+
     if(not validar_consulta_ips(direccion) or direccion == None):# Validamos que el usuario haya ingresado una IP o direccion de MC
         await ctx.send("**[ ! ]** *Ingrese una IP de MC valida")
         return
     
     obtener_motd_server(direccion)
     datos_sv_mc = consulta_api_server(direccion) #Consultamos a la API para obtener toda la informacion de la IP
-    datos_ip_sv = consultar_info_ip(datos_sv_mc['ip'])
     icono = f"https://api.mcstatus.io/v2/icon/{direccion}" #Obtenemos el ICONO del servidor
 
-    #Mensajes que van en el embed
-    mensaje_uno = f"<:punto:1343667939957800960> **IP:** {datos_sv_mc['ip']} \n<:punto:1343667939957800960> **Puerto:** {datos_sv_mc['port']}"
-    mensaje_dos = f"<:punto:1343667939957800960> **Players:** {datos_sv_mc['players']['online']}**/**{datos_sv_mc['players']['max']} \n<:punto:1343667939957800960> **Protocolo:** {datos_sv_mc['protocol']['version']}"
-    mensaje_tres = f"<:punto:1343667939957800960> **ASN:** AS{datos_ip_sv['network']['autonomous_system']['asn']} \n<:punto:1343667939957800960> **Organización:** {datos_ip_sv['network']['autonomous_system']['organization']}"
-    mensaje_cuatro = f"<:punto:1343667939957800960> **Estado:** {'[<:online:1343663213862064128>] ᴏɴ' if {datos_sv_mc['online']} else '[<:offline:1343663227380301895>] ᴏꜰꜰ'}\n <:punto:1343667939957800960> **Version:** {datos_sv_mc['version']}"
-
-    image_file = discord.File(f"images/server.png", filename=f"server.png")
-    #Creamos el EMBED para enviar por discord con el formato
     embed=discord.Embed(title="⌈ ɪɴꜰᴏʀᴍᴀᴄɪᴏ́ɴ ᴅᴇʟ ꜱᴇʀᴠɪᴅᴏʀ ⌋", description=f"<:flecha:1343663258388922440> 𝗰𝗼𝗻𝘀𝘂𝗹𝘁𝗮@: {datos_sv_mc['hostname'] if datos_sv_mc.get('hostname') else direccion}")
     embed.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
     embed.set_thumbnail(url=icono)
     embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+    image_file = discord.File(f"images/server.png", filename=f"server.png")
+    datos_ip_sv = consultar_info_ip(datos_sv_mc['ip'])
+
+    if(datos_sv_mc.get('online')):
+        estado_server = True
+        #Mensajes que van en el embed
+        mensaje_uno = f"<:punto:1343667939957800960> **IP:** {datos_sv_mc['ip']} \n<:punto:1343667939957800960> **Puerto:** {datos_sv_mc['port']}"
+        mensaje_dos = f"<:punto:1343667939957800960> **Players:** {datos_sv_mc['players']['online']}**/**{datos_sv_mc['players']['max']} \n<:punto:1343667939957800960> **Protocolo:** {datos_sv_mc['protocol']['version']}"
+        mensaje_tres = f"<:punto:1343667939957800960> **ASN:** AS{datos_ip_sv['network']['autonomous_system']['asn']} \n<:punto:1343667939957800960> **Organización:** {datos_ip_sv['network']['autonomous_system']['organization']}"
+        mensaje_cuatro = f"<:punto:1343667939957800960> **Estado:** {'[<:online:1343663213862064128>] ᴏɴ' if {datos_sv_mc['online']} else '[<:offline:1343663227380301895>] ᴏꜰꜰ'}\n <:punto:1343667939957800960> **Version:** {datos_sv_mc['version']}"
+
+
+        if(datos_sv_mc.get('players').get('list')):
+            await ctx.send("<a:cargando:1355769309783396402> - *Realizando consulta, puede llegar a demorar dependiendo la cantidad de conectados...*")
+            jugadores_conectados = True
+            lista_jugadores = datos_sv_mc.get('players').get('list')
+            embed2=discord.Embed(title="⌈ ᴊᴜɢᴀᴅᴏʀᴇꜱ ᴄᴏɴᴇᴄᴛᴀᴅᴏꜱ ⌋", description=f"⌈<:alerta:1355761242542837881>⌋ *Las UUIDS se representan en el online-mode del servidor \n los usuarios pueden ser PREMIUM* ⌈<:alerta:1355761242542837881>⌋ \n• *Los jugadores PREMIUM tendran un <:tilde:1343663175308152843> al lado del nombre*")
+            embed2.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
+            embed2.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+            for persona in lista_jugadores:
+                if(len(embed2.fields) >= 25):
+                    break
+                datos_jugador = generar_uuids_jugador(persona.get('name'))
+                jugador = f'```{persona.get("name")}```' if(persona.get('name').startswith('_') or persona.get('name').endswith('_')) else persona.get('name')
+                tilde = f"<:tilde:1343663175308152843>\n" if(esPremium(jugador)) else f"\n"
+                mensaje_embed_jugador = f'<:flecha:1343663258388922440> **NICK:** {jugador} {tilde} \n'
+                if(persona.get('uuid') == datos_jugador.get('PremiumUUID')):
+                    mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:tilde:1343663175308152843> ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador.get('PremiumUUID')}```"
+                elif(persona.get('uuid') == datos_jugador.get('OfflineUUID')):
+                    mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:cruz:1343663199198773298> ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador.get('OfflineUUID')}```"
+                elif(persona.get('name').startswith('.') or persona.get('name').startswith('BD_') or persona.get('name').endswith('_BD')):
+                    mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:bedrock:1355771886730088558> ʙᴇᴅʀᴏᴄᴋ ⌋:** ```{persona.get('uuid')}```"
+                else:
+                    mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:custom:1355767708016181479> ᴄᴜꜱᴛᴏᴍ ⌋:** ```{persona.get('uuid')}```"
+                embed2.add_field(name="",value=(mensaje_embed_jugador + mensaje_embed2), inline=False)
+                embed2.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+            embed2.set_footer(text="github.com/Osvaldx")
+    else:
+        network = datos_ip_sv.get('network')
+        autonomous_system = network.get('autonomous_system') if network.get('autonomous_system') else None
+
+        mensaje_uno = f"<:punto:1343667939957800960> **IP:** {datos_sv_mc['ip']} \n<:punto:1343667939957800960> **Puerto:** {datos_sv_mc['port']}\n"
+        mensaje_dos = f"<:punto:1343667939957800960> **EULA BLOCKED:** {'<:tilde:1343663175308152843>' if(datos_sv_mc.get('eula_blocked')) else '<:cruz:1343663199198773298>'}\n"
+        mensaje_tres = f"<:punto:1343667939957800960> **ASN:** {'AS'+str(autonomous_system.get('asn')) if(autonomous_system) else 'No disponible'} \n<:punto:1343667939957800960> **Organización:** {autonomous_system.get('organization') if(autonomous_system) else 'No disponible'}"
+        mensaje_cuatro = f"<:punto:1343667939957800960> **Estado:** {'[<:online:1343663213862064128>] ᴏɴ' if(datos_sv_mc['online']) else '[<:offline:1343663227380301895>] ᴏꜰꜰ'}"
+    
     embed.add_field(name="",value=mensaje_uno, inline=True)
     embed.add_field(name="", value=mensaje_dos, inline=True)
     embed.add_field(name="", value=mensaje_tres, inline=False)
@@ -61,30 +101,15 @@ async def info_serverMC(ctx,*,direccion: str = None):
     embed.set_image(url=f"attachment://server.png")
     embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
     embed.set_footer(text="github.com/Osvaldx")
-    await ctx.send(embed=embed,file=image_file)
 
-    if(datos_sv_mc.get('players').get('list')):
-        await ctx.send("<a:cargando:1355769309783396402> - *Cargando lista de usuarios conectados...*")
-        lista_jugadores = datos_sv_mc.get('players').get('list')
-        embed2=discord.Embed(title="⌈ ᴊᴜɢᴀᴅᴏʀᴇꜱ ᴄᴏɴᴇᴄᴛᴀᴅᴏꜱ ⌋", description=f"⌈<:alerta:1355761242542837881>⌋ *Las UUIDS se representan en el online-mode del servidor \n los usuarios pueden ser PREMIUM* ⌈<:alerta:1355761242542837881>⌋ \n• *Los jugadores PREMIUM tendran un <:tilde:1343663175308152843> al lado del nombre*")
-        embed2.set_author(name="« SkullBOT | MC »", icon_url="https://media.discordapp.net/attachments/1213856557666795561/1342329848827482193/skullbot.jpg?ex=67b93d97&is=67b7ec17&hm=600b410ee73e715bc3bd8c85f27e0039427465b8edc82544d5f6754dd3d24a1c&=&format=webp&width=347&height=347")
-        embed2.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
-        for persona in lista_jugadores:
-            datos_jugador = generar_uuids_jugador(persona.get('name'))
-            jugador = f'```{persona.get("name")}```' if(persona.get('name').startswith('_') or persona.get('name').endswith('_')) else persona.get('name')
-            tilde = f"<:tilde:1343663175308152843>\n" if(esPremium(jugador)) else f"\n"
-            mensaje_embed_jugador = f'<:flecha:1343663258388922440> **NICK:** {jugador} {tilde} \n'
-            if(persona.get('uuid') == datos_jugador.get('PremiumUUID')):
-                mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:tilde:1343663175308152843> ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador.get('PremiumUUID')}```"
-            elif(persona.get('uuid') == datos_jugador.get('OfflineUUID')):
-                mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:cruz:1343663199198773298> ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador.get('OfflineUUID')}```"
-            elif(persona.get('name').startswith('.') or persona.get('name').startswith('BD_') or persona.get('name').endswith('_BD')):
-                mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:bedrock:1355771886730088558> ʙᴇᴅʀᴏᴄᴋ ⌋:** ```{persona.get('uuid')}```"
-            else:
-                mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:custom:1355767708016181479> ᴄᴜꜱᴛᴏᴍ ⌋:** ```{persona.get('uuid')}```"
-            embed2.add_field(name="",value=(mensaje_embed_jugador + mensaje_embed2), inline=False)
-            embed2.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
+    if(estado_server and jugadores_conectados):
+        await ctx.send(embed=embed,file=image_file)
         await ctx.send(embed=embed2)
+    elif(estado_server and not jugadores_conectados):
+        await ctx.send(embed=embed,file=image_file)
+    else:
+        await ctx.send(embed=embed,file=image_file) # embed offline
+
 
 @bot.command(name="nick")
 async def info_nickMC(ctx, *,nickname: str = None):
