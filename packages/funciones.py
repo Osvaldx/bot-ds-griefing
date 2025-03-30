@@ -2,7 +2,7 @@ import requests
 import uuid
 import hashlib
 from html2image import Html2Image
-
+#s
 api_informacion_ips = "https://ip.guide/"
 api_minecraft_profile = "https://api.mojang.com/users/profiles/minecraft/"
 api_server_datos = f"https://api.mcsrvstat.us/3/"
