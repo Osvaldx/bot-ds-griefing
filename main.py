@@ -16,7 +16,7 @@ bot = commands.Bot(command_prefix="$",intents=intents)
 async def on_ready():
     print(" "*5 + f"[+] BOT ENCENDIDO: {bot.user}")
 
-@bot.command("avatar")
+@bot.command(name="avatar")
 async def enviar_avatar(ctx,usuario: str = None):
     canal = ctx.channel # establecemos el canal donde estamos
 
@@ -31,7 +31,7 @@ async def enviar_avatar(ctx,usuario: str = None):
 
     await canal.send(usuario.avatar.url) # se envia la foto del usuario
 
-@bot.command("server")
+@bot.command(name="server")
 async def info_serverMC(ctx,direccion: str = None):
     if(not validar_consulta_ips(direccion) or direccion == None):# Validamos que el usuario haya ingresado una IP o direccion de MC
         await ctx.send("**[ ! ]** *Ingrese una IP de MC valida")
@@ -63,9 +63,10 @@ async def info_serverMC(ctx,direccion: str = None):
     embed.set_footer(text="github.com/Osvaldx")
     await ctx.send(embed=embed,file=image_file)
 
-@bot.command("nick")
-async def info_nickMC(ctx, nickname: str = None):
-    if(nickname == None): # Validamos que el usuario haya ingresado una IP o direccion de MC
+@bot.command(name="nick")
+async def info_nickMC(ctx, *,nickname: str = None):
+    nickname = nickname.replace('"',"").replace("'","")
+    if(nickname is None or not validar_nicks(nickname)): # Validamos que el usuario haya ingresado un nick correcto
         await ctx.send("**[ ! ]** *Ingrese el NICK de un jugador*")
         return
 
@@ -89,9 +90,10 @@ async def info_nickMC(ctx, nickname: str = None):
     await ctx.send(embed=embed)
     # if(jugador_premium):
     
-@bot.command("friends")
-async def info_friends(ctx, nickname: str = None):
-    if(nickname == None): # Validamos que el usuario haya ingresado una IP o direccion de MC
+@bot.command(name="friends")
+async def info_friends(ctx, *,nickname: str = None):
+    nickname = nickname.replace('"',"").replace("'","")
+    if(nickname is None or not (validar_nicks(nickname))): # Validamos que el usuario haya ingresado una IP o direccion de MC
         await ctx.send("**[ ! ]** *Ingrese el NICK de un jugador*")
         return
     
