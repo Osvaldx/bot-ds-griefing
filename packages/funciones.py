@@ -138,3 +138,10 @@ def validar_consulta_ips(ip_ingresada: str)->bool:
             return True
             
     return False
+
+def validar_nicks(nickname:str)->bool:
+    validado = False
+    if(len(nickname) <= 16):
+        validado = True if(nickname.isalnum()) else False
+    
+    return validado
