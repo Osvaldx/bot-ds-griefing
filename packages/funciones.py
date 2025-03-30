@@ -45,7 +45,7 @@ def generar_uuids_jugador(nickname: str)->dict:
             nueva_uuid += char
         
         uuids_jugador['PremiumUUID'] = nueva_uuid
-    
+     
     return uuids_jugador
 
 def consultar_api_friends(uuid: str)->list:
@@ -142,6 +142,6 @@ def validar_consulta_ips(ip_ingresada: str)->bool:
 def validar_nicks(nickname:str)->bool:
     validado = False
     if(len(nickname) <= 16):
-        validado = True if(nickname.isalnum()) else False
+        validado = True if(char.isalnum() or char in "_" for char in nickname) else False
     
     return validado
