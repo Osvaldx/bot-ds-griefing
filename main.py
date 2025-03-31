@@ -1,6 +1,9 @@
 import discord
 import discord.ext
 import discord.ext.commands
+import os
+from colorama import Style,Fore
+from datetime import datetime
 from discord.ext import commands
 from packages.bot_token import TOKEN_BOT
 from packages.funciones import *
@@ -12,9 +15,12 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="$",intents=intents)
 
+ruta_logs = 'logs\\registros.txt'
+formato_fecha = datetime.now().strftime("(%d-%m-%Y | %H:%M:%S)")
+
 @bot.event
 async def on_ready():
-    print(" "*5 + f"[+] BOT ENCENDIDO: {bot.user}")
+    print(" "*5 + Fore.GREEN + f"[+] BOT ENCENDIDO: {bot.user}" + Style.RESET_ALL)
 
 @bot.command(name="avatar")
 async def enviar_avatar(ctx,usuario: str = None):
@@ -33,15 +39,19 @@ async def enviar_avatar(ctx,usuario: str = None):
 
 @bot.command(name="server")
 async def info_serverMC(ctx,*,direccion: str = None):
-    estado_server = False
-    jugadores_conectados = False
+    mensaje = f'{formato_fecha} [@{ctx.author}] -> $server {direccion}'
+    await guardar_logs(mensaje, ruta_logs)
+    print(Fore.LIGHTGREEN_EX + mensaje + Style.RESET_ALL)
 
     if(not validar_consulta_ips(direccion) or direccion == None):# Validamos que el usuario haya ingresado una IP o direccion de MC
         await ctx.send("**[ ! ]** *Ingrese una IP de MC valida")
         return
     
-    obtener_motd_server(direccion)
-    datos_sv_mc = consulta_api_server(direccion) #Consultamos a la API para obtener toda la informacion de la IP
+    await ctx.send("<a:cargando:1355769309783396402> - *Realizando consulta, puede demorar...*")
+    estado_server = False
+    jugadores_conectados = False
+    await obtener_motd_server(direccion)
+    datos_sv_mc = await consulta_api_server(direccion) #Consultamos a la API para obtener toda la informacion de la IP
     icono = f"https://api.mcstatus.io/v2/icon/{direccion}" #Obtenemos el ICONO del servidor
 
     embed=discord.Embed(title="⌈ ɪɴꜰᴏʀᴍᴀᴄɪᴏ́ɴ ᴅᴇʟ ꜱᴇʀᴠɪᴅᴏʀ ⌋", description=f"<:flecha:1343663258388922440> 𝗰𝗼𝗻𝘀𝘂𝗹𝘁𝗮@: {datos_sv_mc['hostname'] if datos_sv_mc.get('hostname') else direccion}")
@@ -49,7 +59,7 @@ async def info_serverMC(ctx,*,direccion: str = None):
     embed.set_thumbnail(url=icono)
     embed.add_field(name="▬▬▬▬▬▬▬▬▬▬▬▬▬▬", value="", inline=False)
     image_file = discord.File(f"images/server.png", filename=f"server.png")
-    datos_ip_sv = consultar_info_ip(datos_sv_mc['ip'])
+    datos_ip_sv = await consultar_info_ip(datos_sv_mc['ip'])
 
     if(datos_sv_mc.get('online')):
         estado_server = True
@@ -58,7 +68,6 @@ async def info_serverMC(ctx,*,direccion: str = None):
         mensaje_dos = f"<:punto:1343667939957800960> **Players:** {datos_sv_mc['players']['online']}**/**{datos_sv_mc['players']['max']} \n<:punto:1343667939957800960> **Protocolo:** {datos_sv_mc['protocol']['version']}"
         mensaje_tres = f"<:punto:1343667939957800960> **ASN:** AS{datos_ip_sv['network']['autonomous_system']['asn']} \n<:punto:1343667939957800960> **Organización:** {datos_ip_sv['network']['autonomous_system']['organization']}"
         mensaje_cuatro = f"<:punto:1343667939957800960> **Estado:** {'[<:online:1343663213862064128>] ᴏɴ' if {datos_sv_mc['online']} else '[<:offline:1343663227380301895>] ᴏꜰꜰ'}\n <:punto:1343667939957800960> **Version:** {datos_sv_mc['version']}"
-
 
         if(datos_sv_mc.get('players').get('list')):
             await ctx.send("<a:cargando:1355769309783396402> - *Realizando consulta, puede llegar a demorar dependiendo la cantidad de conectados...*")
@@ -70,9 +79,9 @@ async def info_serverMC(ctx,*,direccion: str = None):
             for persona in lista_jugadores:
                 if(len(embed2.fields) >= 25):
                     break
-                datos_jugador = generar_uuids_jugador(persona.get('name'))
+                datos_jugador = await generar_uuids_jugador(persona.get('name'))
                 jugador = f'```{persona.get("name")}```' if(persona.get('name').startswith('_') or persona.get('name').endswith('_')) else persona.get('name')
-                tilde = f"<:tilde:1343663175308152843>\n" if(esPremium(jugador)) else f"\n"
+                tilde = f"<:tilde:1343663175308152843>\n" if(await esPremium(jugador)) else f"\n"
                 mensaje_embed_jugador = f'<:flecha:1343663258388922440> **NICK:** {jugador} {tilde} \n'
                 if(persona.get('uuid') == datos_jugador.get('PremiumUUID')):
                     mensaje_embed2 = f"<:flecha:1343663258388922440> **UUID ⌈ <:tilde:1343663175308152843> ᴘʀᴇᴍɪᴜᴍ ⌋:** ```{datos_jugador.get('PremiumUUID')}```"
@@ -113,12 +122,15 @@ async def info_serverMC(ctx,*,direccion: str = None):
 
 @bot.command(name="nick")
 async def info_nickMC(ctx, *,nickname: str = None):
+    mensaje = f'{formato_fecha} [@{ctx.author}] -> $nick {nickname}'
+    await guardar_logs(mensaje, ruta_logs)
+    print(Fore.LIGHTYELLOW_EX + mensaje + Style.RESET_ALL)
     nickname = nickname.replace('"',"").replace("'","")
     if(nickname is None or not validar_nicks(nickname)): # Validamos que el usuario haya ingresado un nick correcto
         await ctx.send("**[ ! ]** *Ingrese el NICK de un jugador*")
         return
 
-    datos_jugador = generar_uuids_jugador(nickname)
+    datos_jugador = await generar_uuids_jugador(nickname)
     mensaje_embed = f"<:flecha:1343663258388922440> **UUID ⌈ <:cruz:1343663199198773298> ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋:**```{datos_jugador['OfflineUUID']}```"
     skin = f"https://mc-heads.net/body/{nickname}"
     cabeza = f"https://mc-heads.net/avatar/{nickname}"
@@ -139,14 +151,17 @@ async def info_nickMC(ctx, *,nickname: str = None):
 
 @bot.command(name="friends")
 async def info_friends(ctx, *,nickname: str = None):
+    mensaje = f'{formato_fecha} [@{ctx.author}] -> $friends {nickname}'
+    await guardar_logs(mensaje, ruta_logs)
+    print(Fore.LIGHTBLUE_EX + mensaje + Style.RESET_ALL)
     nickname = nickname.replace('"',"").replace("'","")
     if(nickname is None or not (validar_nicks(nickname))): # Validamos que el usuario haya ingresado una IP o direccion de MC
         await ctx.send("**[ ! ]** *Ingrese el NICK de un jugador*")
         return
     
-    if(esPremium(nickname)):
-        datos_jugador = generar_uuids_jugador(nickname)
-        lista_friends = consultar_api_friends(datos_jugador["PremiumUUID"])
+    if(await esPremium(nickname)):
+        datos_jugador = await generar_uuids_jugador(nickname)
+        lista_friends = await consultar_api_friends(datos_jugador["PremiumUUID"])
         if(lista_friends != []):
             for jugador in lista_friends:
                 cabeza_amigo = f"https://mc-heads.net/avatar/{jugador}"
@@ -165,4 +180,5 @@ async def info_friends(ctx, *,nickname: str = None):
     else:
         await ctx.send("**[ ! ]** *el Jugador ingresado es* ⌈ <:cruz:1343663199198773298> ɴᴏ ᴘʀᴇᴍɪᴜᴍ ⌋")
 
+os.system("cls" if(os.name == "nt") else "clear")
 bot.run(TOKEN_BOT)
