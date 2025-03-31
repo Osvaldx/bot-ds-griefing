@@ -7,21 +7,21 @@ api_informacion_ips = "https://ip.guide/"
 api_minecraft_profile = "https://api.mojang.com/users/profiles/minecraft/"
 api_server_datos = f"https://api.mcsrvstat.us/3/"
 
-def consulta_api_server(direccion: str)-> dict | list:
+async def consulta_api_server(direccion: str)-> dict | list:
     #Consultamos a la API
     response = requests.get(api_server_datos + direccion)
     datos = response.json() #Transformamos a JSON
 
     return datos
 
-def consultar_info_ip(direccion: str)->dict | list:
+async def consultar_info_ip(direccion: str)->dict | list:
     #Consultamos a la API
     response = requests.get(api_informacion_ips + direccion)
     datos = response.json() #Transformamos a JSON
 
     return datos
 
-def generar_uuids_jugador(nickname: str)->dict:
+async def generar_uuids_jugador(nickname: str)->dict:
     #Guardamos los datos en un diccionario
     uuids_jugador = {}
 
@@ -48,7 +48,7 @@ def generar_uuids_jugador(nickname: str)->dict:
      
     return uuids_jugador
 
-def consultar_api_friends(uuid: str)->list:
+async def consultar_api_friends(uuid: str)->list:
     #Consultamos la api y transformamos los datos a JSON
     api_friends = f"https://api.namemc.com/profile/{uuid}/friends"
     response = requests.get(api_friends)
@@ -62,10 +62,10 @@ def consultar_api_friends(uuid: str)->list:
 
     return lista_friends
 
-def esPremium(nickname: str)->bool:
+async def esPremium(nickname: str)->bool:
     return True if requests.get(api_minecraft_profile + nickname).json().get('id') else False
 
-def obtener_motd_server(ip_servidor: str)->None:
+async def obtener_motd_server(ip_servidor: str)->None:
     ruta_chrome = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
     ruta_guardar_server = "C:\\Users\\osvql\\Desktop\\dev\\python\\bot-discord-griefing\\images"
 
@@ -145,3 +145,11 @@ def validar_nicks(nickname:str)->bool:
         validado = True if(all(char.isalnum() or char in "_" for char in nickname)) else False
     
     return validado
+
+async def guardar_logs(mensaje: str, ruta:str)->None:
+    with open(ruta, "r", encoding="utf-8") as archivo:
+        datos = archivo.readlines()
+        datos.append(f'\n{mensaje}' if(datos) else mensaje)
+    
+    with open(ruta,"w", encoding="utf-8") as archivo:
+        archivo.writelines(datos)
